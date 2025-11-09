@@ -62,6 +62,7 @@
           <v-divider class="my-4"></v-divider>
 
           <v-card-actions>
+            <v-btn color="grey" variant="text" @click="$emit('close')"> Fechar </v-btn>
             <v-spacer></v-spacer>
             <v-btn
               class="btnComplete"
@@ -79,9 +80,14 @@
   </v-container>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
-import { getUsers, addUser } from '@/services/apiService.ts'
+import { useRouter } from 'vue-router'
+
+import { getUsers, addUser } from '@/services/apiUsers.ts'
+
+const emit = defineEmits(['close'])
+const router = useRouter()
 
 const first = ref('')
 const last = ref('')
@@ -93,20 +99,39 @@ const users = ref([])
 
 onMounted(async () => {
   users.value = await getUsers()
-  if (users.value === `${first.value} ${last.value}`) {
-    alert('Esse usuario ja existe')
-  }
 })
 
+function create(response) {
+  if (response && save) {
+  }
+}
+
 async function save() {
+  const existingUser = users.value.find((u) => u.email === email.value)
+  if (existingUser) {
+    alert('Este e-mail já está cadastrado!')
+    return
+  }
+
   const newUser = {
     username: `${first.value} ${last.value}`,
     email: email.value,
     password: password.value,
   }
 
-  await addUser(newUser)
-  users.value = await getUsers()
+  try {
+    const response = await addUser(newUser)
+
+    if (response && response.id) {
+      alert('Conta criada com sucesso! 🎉')
+      emit('close')
+    } else {
+      alert('Erro ao criar a conta. Tente novamente.')
+    }
+  } catch (error) {
+    console.error('Erro ao criar usuário:', error)
+    alert('Erro ao criar a conta.')
+  }
 
   first.value = ''
   last.value = ''

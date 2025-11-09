@@ -8,6 +8,7 @@
           <div class="text-subtitle-1 text-medium mb-4">E-mail</div>
 
           <v-text-field
+            v-model="email"
             density="compact"
             placeholder="Email address"
             prepend-inner-icon="mdi-email-outline"
@@ -28,6 +29,7 @@
           </div>
 
           <v-text-field
+            v-model="password"
             :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
             :type="visible ? 'text' : 'password'"
             density="compact"
@@ -37,8 +39,10 @@
             class="mb-6"
             @click:append-inner="visible = !visible"
           ></v-text-field>
-
-          <v-btn class="mb-4" color="blue" size="large" block> Log In </v-btn>
+          <v-btn class="mb-4" color="blue" size="large" block @click="loginUser"> Log In </v-btn>
+          <v-btn class="mb-4" color="red" size="large" block @click="$emit('close')">
+            Fechar
+          </v-btn>
 
           <v-card-text class="text-center"> </v-card-text>
         </v-card>
@@ -48,8 +52,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-// import StartPage from '@/views/startPage.vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+import { getBook } from '@/services/apiBooks.ts'
+import { getUsers } from '@/services/apiUsers.ts'
 
 const visible = ref(false)
+
+const books = ref([])
+const users = ref([])
+const password = ref('')
+const email = ref('')
+
+const emit = defineEmits(['close'])
+const router = useRouter()
+
+onMounted(async () => {
+  users.value = await getUsers()
+})
+
+const loginUser = async () => {
+  if (!email.value.trim() || !password.value.trim()) {
+    alert('Por favor, preencha todos os campos!')
+    return
+  }
+
+  const existingUser = users.value.find((u) => u.email === email.value)
+
+  if (!existingUser) {
+    alert('Usuário incorreto!')
+    return
+  }
+
+  if (existingUser.password !== password.value) {
+    alert('Senha incorreta!')
+    return
+  }
+
+  try {
+    const response = await getBook()
+    books.value = response
+    router.push('/startPage')
+  } catch (error) {
+    console.error('Erro ao buscar os livros:', error)
+  }
+}
 </script>

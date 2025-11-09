@@ -29,6 +29,10 @@ import { ref, watch } from 'vue'
 
 const items = [
   {
+    title: 'Home',
+    value: 'homeBook',
+  },
+  {
     title: 'Cadastro de Livros',
     value: 'resgisterBook',
   },
@@ -47,6 +51,10 @@ const items = [
   {
     title: 'Doação',
     value: 'donation'
+  },
+  {
+    title: 'Sair',
+    value: 'exit'
   }
   
 ]
