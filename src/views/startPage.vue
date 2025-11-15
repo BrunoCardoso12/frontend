@@ -1,26 +1,39 @@
 <template>
   <v-app>
+    <v-main class="background-startPage">
     <books />
-    <v-main class="background-startPage d-flex align-center justify-center">
-      <navegationProfile />
+    <navegationProfile />
+      
+      <v-dialog v-model="isRegisterBookOpen" persistent>
+        <template #activator="{ props }"></template>
+        <registerBook @close="closeDialog" />
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from 'vue'
+
+import { useDialog } from '@/composable/dialog.ts'
+
 import navegationProfile from '@/components/navegationProfile.vue'
 import books from '@/components/books.vue'
+import registerBook from '@/components/registerBook.vue'
 
-export default {
-  components: {
-    navegationProfile,
-    books,
-  },
-}
+const { activeDialog, closeDialog } = useDialog()
+
+const isRegisterBookOpen = computed({
+  get: () => activeDialog.value === 'registerBook',
+  set: (val) => {
+    if (!val) closeDialog()
+  }
+})
 </script>
+
 <style>
-.cards {
-  display: flex;
-  justify-content: center;
+.background-startPage {
+  position: relative;
+  min-height: 100vh;
 }
 </style>

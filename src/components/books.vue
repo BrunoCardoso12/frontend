@@ -11,13 +11,20 @@
         class="d-flex justify-center"
       >
         <v-card class="mx-auto elevation-4" max-width="260">
-          <v-img height="200" :src="book.coverImageUrl" cover></v-img>
+          <v-img height="200" :src="book.coverImageUrl || '/default-cover.png'" cover></v-img>
 
           <v-card-title>{{ book.title }}</v-card-title>
           <v-card-subtitle>{{ book.author }}</v-card-subtitle>
 
           <v-card-actions>
-            <v-btn color="orange-lighten-2" text="Explore"></v-btn>
+            <bookTopicsDialog
+              v-model:modelValue="showDialog"
+              :book="selectedBook"
+              :topics="topics"
+            />
+
+            <v-btn color="orange-lighten-2" @click="openExplore(book)"> Explore </v-btn>
+
             <v-spacer></v-spacer>
             <v-btn
               :icon="book.show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
@@ -32,27 +39,59 @@
             </div>
           </v-expand-transition>
         </v-card>
+
+        <!-- Dialog -->
+        <v-dialog v-model="showDialog" max-width="600">
+          <v-card>
+            <v-card-title>
+              Tópicos de {{ selectedBook?.title }}
+              <v-spacer></v-spacer>
+              <v-btn icon @click="showDialog = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card-text>
+              <v-expansion-panels>
+                <v-expansion-panel v-for="topic in topics" :key="topic.id" :title="topic.title">
+                  <v-card-text>
+                    {{ topic.description }}
+                  </v-card-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </v-col>
     </v-row>
   </v-container>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
-
 import { getBook } from '@/services/apiBooks.ts'
+import { getTopicsByBookId } from '@/services/apiTopics.ts'
+
+// Import correto do seu componente
+import bookTopicsDialog from '@/components/bookTopicsDialog.vue'
 
 const books = ref([])
+const showDialog = ref(false)
+const selectedBook = ref(null)
+const topics = ref([])
 
 onMounted(async () => {
-  try {
-    const response = await getBook()
-    books.value = response
-  } catch (error) {
-    console.error('Erro ao buscar os livros:', error)
-  }
+  books.value = await getBook()
 })
-</script>
 
+async function openExplore(book) {
+  selectedBook.value = book
+  try {
+    topics.value = await getTopicsByBookId(book.id)
+  } catch {
+    topics.value = []
+  }
+  showDialog.value = true
+}
+</script>
 <style scoped>
 .v-card {
   border-radius: 16px;

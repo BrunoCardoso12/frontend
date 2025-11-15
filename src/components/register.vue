@@ -79,15 +79,11 @@
     </v-row>
   </v-container>
 </template>
-
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-
-import { getUsers, addUser } from '@/services/apiUsers.ts'
+import { ref } from 'vue'
+import axios from 'axios'
 
 const emit = defineEmits(['close'])
-const router = useRouter()
 
 const first = ref('')
 const last = ref('')
@@ -95,49 +91,33 @@ const email = ref('')
 const password = ref('')
 const terms = ref(false)
 
-const users = ref([])
-
-onMounted(async () => {
-  users.value = await getUsers()
-})
-
-function create(response) {
-  if (response && save) {
-  }
-}
+const message = ref('')
+const alertType = ref('success')
 
 async function save() {
-  const existingUser = users.value.find((u) => u.email === email.value)
-  if (existingUser) {
-    alert('Este e-mail já está cadastrado!')
-    return
-  }
-
-  const newUser = {
-    username: `${first.value} ${last.value}`,
-    email: email.value,
-    password: password.value,
-  }
-
   try {
-    const response = await addUser(newUser)
-
-    if (response && response.id) {
-      alert('Conta criada com sucesso! 🎉')
-      emit('close')
-    } else {
-      alert('Erro ao criar a conta. Tente novamente.')
+    const user = {
+      username: `${first.value} ${last.value}`,
+      email: email.value,
+      password: password.value,
     }
-  } catch (error) {
-    console.error('Erro ao criar usuário:', error)
-    alert('Erro ao criar a conta.')
-  }
 
-  first.value = ''
-  last.value = ''
-  email.value = ''
-  password.value = ''
-  terms.value = false
+    const response = await axios.post('http://localhost:8080/api/users/register', user)
+    message.value = `Usuário criado com sucesso! ID: ${response.data.id}`
+    alertType.value = 'success'
+    emit('close')
+
+    // limpa o formulário
+    first.value = ''
+    last.value = ''
+    email.value = ''
+    password.value = ''
+    terms.value = false
+  } catch (error) {
+    console.error(error)
+    message.value = error.response?.data?.message || 'Erro ao criar usuário.'
+    alertType.value = 'error'
+  }
 }
 </script>
 <style scoped>

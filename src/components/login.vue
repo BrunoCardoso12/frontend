@@ -39,12 +39,15 @@
             class="mb-6"
             @click:append-inner="visible = !visible"
           ></v-text-field>
-          <v-btn class="mb-4" color="blue" size="large" block @click="loginUser"> Log In </v-btn>
-          <v-btn class="mb-4" color="red" size="large" block @click="$emit('close')">
+
+          <v-btn color="blue" size="large" block class="mb-4" @click="apply"> Log In </v-btn>
+          <v-btn color="red" size="large" block class="mb-4" @click="$emit('close')">
             Fechar
           </v-btn>
 
-          <v-card-text class="text-center"> </v-card-text>
+          <v-alert :type="alertType" v-if="message" class="mb-4">
+            {{ message }}
+          </v-alert>
         </v-card>
       </v-col>
     </v-row>
@@ -52,50 +55,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { getBook } from '@/services/apiBooks.ts'
-import { getUsers } from '@/services/apiUsers.ts'
+import api from '@/services/api' // ✅ importante: importa sua instância configurada
 
 const visible = ref(false)
-
-const books = ref([])
-const users = ref([])
 const password = ref('')
 const email = ref('')
+
+const message = ref('')
+const alertType = ref<'success' | 'error'>('success')
 
 const emit = defineEmits(['close'])
 const router = useRouter()
 
-onMounted(async () => {
-  users.value = await getUsers()
-})
-
-const loginUser = async () => {
-  if (!email.value.trim() || !password.value.trim()) {
-    alert('Por favor, preencha todos os campos!')
-    return
-  }
-
-  const existingUser = users.value.find((u) => u.email === email.value)
-
-  if (!existingUser) {
-    alert('Usuário incorreto!')
-    return
-  }
-
-  if (existingUser.password !== password.value) {
-    alert('Senha incorreta!')
-    return
-  }
+async function apply() {
+  message.value = ''
+  alertType.value = 'success'
 
   try {
-    const response = await getBook()
-    books.value = response
+    // ✅ aqui usamos os valores reais
+    const res = await api.post('/users/login', {
+      email: email.value,
+      password: password.value,
+    })
+
+    console.log('✅ Login bem-sucedido:', res.data)
+    message.value = `Bem-vindo, ${res.data.username}!`
+    alertType.value = 'success'
+
+    // Exemplo: salvar usuário logado no localStorage
+    // localStorage.setItem('user', JSON.stringify(res.data))
+    localStorage.setItem('token', res.data.token)
+
+    // Redirecionar (opcional)
     router.push('/startPage')
-  } catch (error) {
-    console.error('Erro ao buscar os livros:', error)
+  } catch (error: any) {
+    if (error.response) {
+      console.error('❌ Erro de login:', error.response.status, error.response.data)
+      message.value = error.response.data
+      alertType.value = 'error'
+    } else {
+      message.value = 'Erro de conexão com o servidor'
+      alertType.value = 'error'
+    }
   }
 }
 </script>

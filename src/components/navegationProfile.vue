@@ -6,7 +6,6 @@
 
     <template v-if="$vuetify.display.mdAndUp">
       <v-btn icon="mdi-magnify" variant="text"></v-btn>
-
       <v-btn icon="mdi-filter" variant="text"></v-btn>
     </template>
 
@@ -18,51 +17,48 @@
     :location="$vuetify.display.mobile ? 'bottom' : undefined"
     temporary
   >
-    <!-- <img src="foto" alt=""> -->
-    <v-list style="text-align: center;" :items="items"></v-list>
+    <v-list style="text-align: center">
+      <v-list-item v-for="item in items" :key="item.value" @click="handleItemClick(item)">
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
   </v-navigation-drawer>
 
   <v-main style="height: 500px"> </v-main>
 </template>
+
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+import registerBook from '@/components/registerBook.vue'
+
+import { useDialog } from '@/composable/dialog.ts'
+
+const { openDialog } = useDialog()
+
+const router = useRouter()
+const drawer = ref(false)
 
 const items = [
-  {
-    title: 'Home',
-    value: 'homeBook',
-  },
-  {
-    title: 'Cadastro de Livros',
-    value: 'resgisterBook',
-  },
-  {
-    title: 'Meus Livros',
-    value: 'myBook',
-  },
-  {
-    title: 'Comunidade',
-    value: 'Community',
-  },
-  {
-    title: 'Mensagem',
-    value: 'menssage',
-  },
-  {
-    title: 'Doação',
-    value: 'donation'
-  },
-  {
-    title: 'Sair',
-    value: 'exit'
-  }
-  
+  { title: 'Home', value: 'startPage' },
+  { title: 'Cadastro de Livros', value: 'registerBook' },
+  { title: 'Meus Livros', value: 'myBook' },
+  { title: 'Comunidade', value: 'Community' },
+  { title: 'Mensagem', value: 'menssage' },
+  { title: 'Doação', value: 'donation' },
+  { title: 'Sair', value: 'exit' },
 ]
 
-const drawer = ref(false)
-const group = ref(null)
-
-watch(group, () => {
+function handleItemClick(item) {
   drawer.value = false
-})
+  if (item.value === 'registerBook') {
+    openDialog('registerBook')
+  } else if (item.value === 'exit') {
+    localStorage.removeItem('token')
+    router.push('/')
+  } else {
+    router.push(`/${item.value}`)
+  }
+}
 </script>
