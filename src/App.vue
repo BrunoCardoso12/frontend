@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :theme="currentTheme">
     <v-main>
       <router-view />
     </v-main>
@@ -7,21 +7,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed} from 'vue'
+import { ref, provide, watch } from 'vue'
 import { useTheme } from 'vuetify'
 
 const theme = useTheme()
-const isDark = computed(() => theme.global.name.value === 'darkTheme')
 
-function toggleTheme() {
-  theme.global.name.value = isDark.value ? 'lightTheme' : 'darkTheme'
-}
+const currentTheme = ref(localStorage.getItem('theme') || 'lightTheme')
+
+theme.change(currentTheme.value)
+
+watch(currentTheme, (val) => {
+  localStorage.setItem('theme', val)
+  theme.change(val)
+})
+
+provide("currentTheme", currentTheme)
 </script>
-<style scoped>
 
+<style scoped>
 html, body, #app {
   height: 100%;
   margin: 0;
 }
-
 </style>

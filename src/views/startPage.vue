@@ -2,7 +2,7 @@
   <v-app>
     <v-main class="background-startPage">
     <books />
-    <navegationProfile />
+    <navegationProfile/>
       
       <v-dialog v-model="isRegisterBookOpen" persistent>
         <template #activator="{ props }"></template>
