@@ -9,7 +9,7 @@ export const theme = {
         primary: '#B7EBF2',
         secondary: '#2fa9beff',
         accent: '#82B1FF',
-        error: '#FF4081',
+        error: '#f31818ff',
         info: '#2196F3',
         success: '#3cdf41ff',
         warning: '#FB8C00',
@@ -20,7 +20,7 @@ export const theme = {
       colors: {
         background: '#121212',
         surface: '#1E1E1E',
-        primary: '#B7EBF2',
+        primary: '#4242428c',
         secondary: '#424242',
         accent: '#FF4081',
         error: '#f31818ff',

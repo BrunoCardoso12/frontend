@@ -16,7 +16,9 @@
             class="mb-1"
           ></v-text-field>
 
-          <div class="text-subtitle-1 text-medium d-flex align-center justify-space-between mb-2">
+          <div
+            class="text-subtitle-1 text-medium d-flex align-center justify-space-between mb-2"
+          >
             Password
             <a
               class="text-caption text-decoration-none text-black"
@@ -40,7 +42,9 @@
             @click:append-inner="visible = !visible"
           ></v-text-field>
 
-          <v-btn color="blue" size="large" block class="mb-4" @click="apply"> Log In </v-btn>
+          <v-btn color="blue" size="large" block class="mb-4" @click="apply">
+            Log In
+          </v-btn>
           <v-btn color="red" size="large" block class="mb-4" @click="$emit('close')">
             Fechar
           </v-btn>
@@ -57,7 +61,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/services/api' // ✅ importante: importa sua instância configurada
+import api from '@/services/api' //importante: importa sua instância configurada
 
 const visible = ref(false)
 const password = ref('')
@@ -74,25 +78,27 @@ async function apply() {
   alertType.value = 'success'
 
   try {
-    // ✅ aqui usamos os valores reais
+    // aqui usamos os valores reais
     const res = await api.post('/users/login', {
       email: email.value,
       password: password.value,
     })
 
-    console.log('✅ Login bem-sucedido:', res.data)
+    console.log('Login bem-sucedido:', res.data)
     message.value = `Bem-vindo, ${res.data.username}!`
     alertType.value = 'success'
 
     // Exemplo: salvar usuário logado no localStorage
-    // localStorage.setItem('user', JSON.stringify(res.data))
+    console.log(res.data) 
+    localStorage.setItem('user', JSON.stringify(res.data))
     localStorage.setItem('token', res.data.token)
 
     // Redirecionar (opcional)
     router.push('/startPage')
+
   } catch (error: any) {
     if (error.response) {
-      console.error('❌ Erro de login:', error.response.status, error.response.data)
+      console.error('Erro de login:', error.response.status, error.response.data)
       message.value = error.response.data
       alertType.value = 'error'
     } else {

@@ -9,12 +9,10 @@
           max-width="600"
           style="max-height: 80vh; overflow-y: auto"
         >
-          <!-- Alert -->
           <v-alert v-if="message" :type="alertType" class="mb-4">
             {{ message }}
           </v-alert>
 
-          <!-- Busca Google Books -->
           <v-text-field
             v-model="query"
             label="Search Google Books"
@@ -90,9 +88,9 @@
           <v-divider class="my-4"></v-divider>
 
           <v-card-actions>
-            <v-btn color="grey" variant="text" @click="$emit('close')">Fechar</v-btn>
+            <v-btn color="error" variant="text" @click="$emit('close')">Fechar</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="saveBook" :disabled="!title || !author">
+            <v-btn color="success" @click="saveBook" :disabled="!title || !author">
               Register Book
             </v-btn>
           </v-card-actions>
@@ -103,8 +101,13 @@
 </template>
 
 <script setup lang="ts">
+
 import { ref } from 'vue'
 import axios from 'axios'
+
+import { getLoggedUser } from '@/composable/auth.ts'
+
+import { getMyBooks } from "@/services/apiBooks.ts"
 
 const emit = defineEmits(['close'])
 const message = ref('')
@@ -120,7 +123,6 @@ const year = ref<number | null>(null)
 const category = ref('')
 const description = ref('')
 
-// Busca Google Books
 async function handleSearch() {
   if (!query.value) return
   try {
@@ -155,7 +157,7 @@ function selectBook(book: any) {
   isbn.value = book.isbn
   searchResults.value = []
   query.value = ''
-  description.vlaue = book.description
+  description.value = book.description
 }
 
 async function fetchBookImage(title: string) {
@@ -175,6 +177,10 @@ async function fetchBookImage(title: string) {
   }
 }
 
+function reloadBooks() {
+  getMyBooks().then(data => books.value = data)
+}
+
 // Salva livro na sua API local
 async function saveBook() {
   if (!title.value || !author.value) {
@@ -184,8 +190,14 @@ async function saveBook() {
   }
 
   try {
-    // Busca a imagem no Google Books
     const imageUrl = await fetchBookImage(title.value)
+
+    const user = getLoggedUser()
+    if (!user || !user.id) {
+      message.value = 'Usuário não logado.'
+      alertType.value = 'error'
+      return
+    }
 
     const book = {
       title: title.value,
@@ -195,6 +207,7 @@ async function saveBook() {
       category: category.value,
       description: description.value,
       coverImageUrl: imageUrl,
+      owner: { id: user.id }
     }
 
     // Salva no backend
@@ -202,13 +215,15 @@ async function saveBook() {
     message.value = `Book registered! ID: ${data.id}`
     alertType.value = 'success'
 
+    emit('book-registered', data)
+
     // Limpa campos
     title.value = ''
     author.value = ''
     isbn.value = ''
     year.value = null
     category.value = ''
-    description: ''
+    description.value = ''
   } catch (error) {
     console.error(error)
     message.value = 'Error registering book'

@@ -1,25 +1,23 @@
-// auth.js
-import router from '@/router/index.ts' // importe seu createRouter
-
-// Função utilitária para verificar login
 export function isLoggedIn() {
-  // Retorna true se houver token no localStorage
   return !!localStorage.getItem('token')
 }
 
-// Guard global de rotas
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
+export function getLoggedUser() {
+  try {
+    const user = localStorage.getItem('user')
+    if (!user) return null
 
-  // Rotas públicas que não precisam de login
-  const publicPages = ['/'] // home/login é pública
-  const authRequired = !publicPages.includes(to.path)
+    const parsed = JSON.parse(user)
 
-  if (authRequired && !token) {
-    // Redireciona para a home/login se não estiver logado
-    next('/')
-  } else {
-    // Permite acesso
-    next()
+    if (!parsed.id || !parsed.username) return null
+
+    return parsed
+  } catch {
+    return null
   }
-})
+}
+
+export function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+}

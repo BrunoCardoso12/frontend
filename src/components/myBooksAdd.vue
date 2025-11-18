@@ -1,6 +1,10 @@
 <template>
   <v-container fluid>
     <v-row class="d-flex justify-center align-start" dense>
+      <div v-if="books.length === 0" class="text-center" style="width: 100%">
+        <p>Você ainda não adicionou nenhum livro.</p>
+      </div>
+
       <v-col
         v-for="(book, index) in books"
         :key="book.id || index"
@@ -18,7 +22,6 @@
 
           <v-card-actions>
             <v-btn color="warning" @click="openExplore(book)"> Explore </v-btn>
-
             <v-spacer></v-spacer>
             <v-btn
               :icon="book.show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
@@ -35,36 +38,42 @@
         </v-card>
       </v-col>
     </v-row>
-        <bookTopicsDialog
+
+    <bookTopicsDialog
       :model-value="showDialog"
       :book="selectedBook"
       :topics="topics"
       @update:model-value="showDialog = $event"
     />
-
   </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getBook } from '@/services/apiBooks.ts'
-
+import { getMyBooks } from '@/services/apiBooks.ts'
+import { getLoggedUser } from '@/composable/auth.ts'
+import book from '@/components/books.vue'
 import bookTopicsDialog from '@/components/bookTopicsDialog.vue'
 
+const user = getLoggedUser()
 const books = ref([])
+
+onMounted(async () => {
+  if (user && user.id) {
+    books.value = await getMyBooks(user.id)
+  }
+})
+
 const showDialog = ref(false)
 const selectedBook = ref(null)
 const topics = ref([])
 
-onMounted(async () => {
-  books.value = await getBook()
-})
-
-async function openExplore(book) {
+function openExplore(book) {
   selectedBook.value = book
   showDialog.value = true
 }
 </script>
+
 <style scoped>
 .v-card {
   border-radius: 16px;

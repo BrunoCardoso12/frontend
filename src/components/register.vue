@@ -62,10 +62,10 @@
           <v-divider class="my-4"></v-divider>
 
           <v-card-actions>
-            <v-btn color="grey" variant="text" @click="$emit('close')"> Fechar </v-btn>
+            <v-btn color="error" variant="text" @click="$emit('close')"> Fechar </v-btn>
             <v-spacer></v-spacer>
             <v-btn
-              class="btnComplete"
+              class="bg-success"
               color="black"
               @click="save"
               :disabled="!terms || !first || !last || !email || !password"
@@ -106,7 +106,7 @@ async function save() {
     message.value = `Usuário criado com sucesso! ID: ${response.data.id}`
     alertType.value = 'success'
     emit('close')
-
+  
     // limpa o formulário
     first.value = ''
     last.value = ''
@@ -120,8 +120,3 @@ async function save() {
   }
 }
 </script>
-<style scoped>
-.btnComplete {
-  background-color: rgb(111, 215, 247);
-}
-</style>

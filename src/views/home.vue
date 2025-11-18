@@ -8,7 +8,7 @@
           Acessar
         </v-btn>
 
-        <v-btn class="mb-4" color="light-blue-lighten-4" size="large" @click="showRegister = true">
+        <v-btn class="mb-4" color="success" size="large" @click="showRegister = true">
           Criar Conta
         </v-btn>
 

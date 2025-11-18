@@ -11,3 +11,8 @@ export async function addBook(book: { title: string; author: string; description
     });
     return responseBook.json();
 }
+
+export async function getMyBooks(userId: string | number) {
+    const response = await fetch(`http://localhost:8080/api/books/users/${userId}/books`);
+    return await response.json();
+}
