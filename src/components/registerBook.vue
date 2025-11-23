@@ -101,13 +101,12 @@
 </template>
 
 <script setup lang="ts">
-
 import { ref } from 'vue'
 import axios from 'axios'
 
 import { getLoggedUser } from '@/composable/auth.ts'
 
-import { getMyBooks } from "@/services/apiBooks.ts"
+import { getMyBooks } from '@/services/apiBooks.ts'
 
 const emit = defineEmits(['close'])
 const message = ref('')
@@ -148,7 +147,6 @@ async function handleSearch() {
   }
 }
 
-// Seleciona livro e preenche formulário
 function selectBook(book: any) {
   title.value = book.title
   author.value = book.author
@@ -174,11 +172,15 @@ async function fetchBookImage(title: string) {
   } catch (error) {
     console.error('Erro ao buscar imagem:', error)
     return ''
+  } finally {
+    setTimeout(() => {
+      location.reload()
+    }, 1500)
   }
 }
 
 function reloadBooks() {
-  getMyBooks().then(data => books.value = data)
+  getMyBooks().then((data) => (books.value = data))
 }
 
 // Salva livro na sua API local
@@ -207,7 +209,7 @@ async function saveBook() {
       category: category.value,
       description: description.value,
       coverImageUrl: imageUrl,
-      owner: { id: user.id }
+      owner: { id: user.id },
     }
 
     // Salva no backend

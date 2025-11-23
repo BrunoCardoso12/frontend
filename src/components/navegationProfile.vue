@@ -2,7 +2,7 @@
   <v-app-bar app fixed color="secondary">
     <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
 
-    <v-toolbar-title>{{userName}}</v-toolbar-title>
+    <v-toolbar-title>Bookgram</v-toolbar-title>
 
     <template v-if="$vuetify.display.mdAndUp">
       <v-btn icon="mdi-magnify" variant="text"></v-btn>
@@ -10,7 +10,7 @@
       <v-btn icon="mdi-theme-light-dark" @click="toggleTheme"></v-btn>
     </template>
 
-    <v-btn icon="mdi-dots-vertical" variant="text"></v-btn>
+    <v-btn icon="mdi-bell" variant="text"></v-btn>
   </v-app-bar>
 
   <v-navigation-drawer
@@ -19,6 +19,8 @@
     temporary
     color="primary"
   >
+    <Avatar/>
+    <v-toolbar-title style="display: flex; justify-content: center;">{{ userName }}</v-toolbar-title>
     <v-list
       style="text-align: center; border-radius: 13px; padding: 0; margin: 20px"
       bg-color="background"
@@ -44,14 +46,16 @@ import { ref, inject, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { useDialog } from '@/composable/dialog.ts'
-import { getLoggedUser, logout } from "@/composable/auth.ts"
+import { getLoggedUser, logout } from '@/composable/auth.ts'
+
+import Avatar from '@/components/avatar.vue'
 
 const currentTheme = inject('currentTheme')
 const { openDialog } = useDialog()
 const router = useRouter()
 
 const user = getLoggedUser()
-const userName = user?.username ?? "Usuário"
+const userName = user?.username ?? 'Usuário'
 
 const drawer = ref(false)
 const route = useRoute()
@@ -59,12 +63,13 @@ const selected = ref('startPage')
 const noSelectItems = ['exit', 'registerBook']
 
 const items = [
-  { title: 'Home', value: 'startPage', },
+  { title: 'Home', value: 'startPage' },
   { title: 'Cadastro de Livros', value: 'registerBook' },
   { title: 'Meus Livros', value: 'myBooks' },
   { title: 'Comunidade', value: 'Community' },
-  { title: 'Mensagem', value: 'menssage' },
+  { title: 'Message', value: 'message' },
   { title: 'Doação', value: 'donation' },
+  { title: 'Profile', value: 'profile' },
   { title: 'Sair', value: 'exit' },
 ]
 
@@ -79,7 +84,7 @@ function handleItemClick(item) {
     return
   }
 
-  if (item.value === 'myBooks'){
+  if (item.value === 'myBooks') {
     router.push('/myBooks')
     return
   }
@@ -102,21 +107,26 @@ function selectItem(value) {
 }
 
 onMounted(() => {
-  if (route.name && items.find(i => i.value === route.name)) {
+  if (route.name && items.find((i) => i.value === route.name)) {
     selected.value = String(route.name)
   }
 })
 
-watch(() => route.name, (name) => {
-  if (name && items.find(i => i.value === name)) {
-    selected.value = String(name)
-  }
-})
+watch(
+  () => route.name,
+  (name) => {
+    if (name && items.find((i) => i.value === name)) {
+      selected.value = String(name)
+    }
+  },
+)
 </script>
 <style scoped>
 .list-item-custom {
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 .list-item-custom.selected {
   background-color: #1976d2;

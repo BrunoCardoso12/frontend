@@ -4,6 +4,7 @@
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card elevation="8" class="pa-8" title="User Registration">
           <v-container>
+            <Avatar/>
             <v-row>
               <v-col cols="12" sm="6">
                 <v-text-field
@@ -81,7 +82,10 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+
+import { createUser } from '@/services/apiRegisterUsers'
+
+import Avatar from '@/components/avatar.vue'
 
 const emit = defineEmits(['close'])
 
@@ -90,6 +94,7 @@ const last = ref('')
 const email = ref('')
 const password = ref('')
 const terms = ref(false)
+const photo = ref(null)
 
 const message = ref('')
 const alertType = ref('success')
@@ -102,11 +107,11 @@ async function save() {
       password: password.value,
     }
 
-    const response = await axios.post('http://localhost:8080/api/users/register', user)
-    message.value = `Usuário criado com sucesso! ID: ${response.data.id}`
+    const response = await createUser(user)
+    message.value = `Usuário criado com sucesso! ID: ${response.id}`
     alertType.value = 'success'
     emit('close')
-  
+
     // limpa o formulário
     first.value = ''
     last.value = ''

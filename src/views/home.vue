@@ -4,7 +4,7 @@
       <div class="text-center">
         <h1 class="text-h3 font-weight-bold mb-8 text-black">Bookgram</h1>
 
-        <v-btn class="mb-4" color="primary" size="large" @click="showLogin = true">
+        <v-btn class="mb-4 mr-2" color="primary" size="large" @click="showLogin = true">
           Acessar
         </v-btn>
 
@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Login from '@/components/login.vue'
-import Register from '@/components/register.vue'
+import Register from '@/components/registerUser.vue'
 
 const showLogin = ref(false)
 const showRegister = ref(false)

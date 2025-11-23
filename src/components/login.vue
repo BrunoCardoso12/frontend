@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/services/api' //importante: importa sua instância configurada
+import { loginUser } from '@/services/apiLogin' //importante: importa sua instância configurada
 
 const visible = ref(false)
 const password = ref('')
@@ -79,19 +79,15 @@ async function apply() {
 
   try {
     // aqui usamos os valores reais
-    const res = await api.post('/users/login', {
-      email: email.value,
-      password: password.value,
-    })
+    const res = await loginUser(email.value, password.value)
 
-    console.log('Login bem-sucedido:', res.data)
-    message.value = `Bem-vindo, ${res.data.username}!`
+    console.log('Login bem-sucedido:', res)
+    message.value = `Bem-vindo, ${res.username}!`
     alertType.value = 'success'
 
     // Exemplo: salvar usuário logado no localStorage
-    console.log(res.data) 
-    localStorage.setItem('user', JSON.stringify(res.data))
-    localStorage.setItem('token', res.data.token)
+    localStorage.setItem('user', JSON.stringify(res))
+    localStorage.setItem('token', res.token)
 
     // Redirecionar (opcional)
     router.push('/startPage')
