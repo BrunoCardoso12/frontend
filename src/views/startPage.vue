@@ -8,6 +8,9 @@
         <template #activator="{ props }"></template>
         <registerBook @close="closeDialog" />
       </v-dialog>
+      <v-dialog v-model="isProfileOpen" persistent>
+        <profile-component />
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
@@ -20,6 +23,7 @@ import { useDialog } from '@/composable/dialog.ts'
 import navegationProfile from '@/components/navegationProfile.vue'
 import books from '@/components/books.vue'
 import registerBook from '@/components/registerBook.vue'
+import profileComponent from '@/components/profile.vue'
 
 const { activeDialog, closeDialog } = useDialog()
 
@@ -28,6 +32,11 @@ const isRegisterBookOpen = computed({
   set: (val) => {
     if (!val) closeDialog()
   }
+})
+
+const isProfileOpen = computed({
+  get: () => activeDialog.value === 'profile',
+  set: (val) => { if (!val) closeDialog() }
 })
 </script>
 

@@ -1,7 +1,11 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="mybooks-container">
     <v-row class="d-flex justify-center align-start" dense>
-      <div v-if="books.length === 0" class="text-center" style="width: 100%">
+      <div v-if="loading" class="text-center" style="width: 100%">
+        <v-progress-circular indeterminate size="48"></v-progress-circular>
+      </div>
+
+      <div v-else-if="books.length === 0" class="text-center" style="width: 100%">
         <p>Você ainda não adicionou nenhum livro.</p>
       </div>
 
@@ -57,10 +61,17 @@ import bookTopicsDialog from '@/components/bookTopicsDialog.vue'
 
 const user = getLoggedUser()
 const books = ref([])
+const loading = ref(true)
 
 onMounted(async () => {
-  if (user && user.id) {
-    books.value = await getMyBooks(user.id)
+  try {
+    if (user && user.id) {
+      books.value = await getMyBooks(user.id)
+    }
+  } catch (e) {
+    console.error('Erro ao carregar livros do usuário', e)
+  } finally {
+    loading.value = false
   }
 })
 
@@ -75,10 +86,17 @@ function openExplore(book) {
 </script>
 
 <style scoped>
+/* container that keeps list inside viewport and enables scrolling when needed */
+.mybooks-container {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .v-card {
   border-radius: 16px;
   overflow: hidden;
-  width: 50vh;
-  margin-top: 60px;
+  width: 260px; /* fixed sensible width instead of 50vh */
+  margin-top: 16px;
 }
 </style>

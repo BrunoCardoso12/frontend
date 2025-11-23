@@ -61,7 +61,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginUser } from '@/services/apiLogin' //importante: importa sua instância configurada
+import { loginUser } from '@/services/apiLogin'
+import { getUserById } from '@/services/apiRegisterUsers'
+import api from '@/services/api'
 
 const visible = ref(false)
 const password = ref('')
@@ -78,18 +80,40 @@ async function apply() {
   alertType.value = 'success'
 
   try {
-    // aqui usamos os valores reais
     const res = await loginUser(email.value, password.value)
 
     console.log('Login bem-sucedido:', res)
     message.value = `Bem-vindo, ${res.username}!`
     alertType.value = 'success'
 
-    // Exemplo: salvar usuário logado no localStorage
-    localStorage.setItem('user', JSON.stringify(res))
-    localStorage.setItem('token', res.token)
+    try {
+      if (res && !res.avatarUrl && res.id) {
+        try {
+          const full = await getUserById(res.id)
+          Object.assign(res, full)
+          console.log('Fetched full user after login:', full)
+        } catch (e) {
+          console.warn('Could not fetch full user after login', e)
+        }
+      }
 
-    // Redirecionar (opcional)
+      const apiBase = api.defaults?.baseURL || ''
+      const backendBase = apiBase.replace(/\/api\/?$/, '')
+      if (res && res.avatarUrl) {
+        const avatar = String(res.avatarUrl)
+        if (!/^https?:\/\//i.test(avatar)) {
+          res.avatarUrl = avatar.startsWith('/') ? backendBase + avatar : backendBase + '/' + avatar
+        }
+      }
+    } catch (e) {
+      console.warn('Could not normalize/avatar fetch after login', e)
+    }
+
+  localStorage.setItem('user', JSON.stringify(res))
+  localStorage.setItem('token', res.token)
+  // notify other components that user data changed (avatar etc.)
+  try { window.dispatchEvent(new CustomEvent('user-updated', { detail: res })) } catch (e) {}
+
     router.push('/startPage')
 
   } catch (error: any) {

@@ -13,11 +13,14 @@
         </v-btn>
 
         <v-dialog v-model="showLogin">
-          <Login @close="showLogin = false" />
+          <Login @close="showLogin = false"/>
         </v-dialog>
 
         <v-dialog v-model="showRegister">
-          <Register @close="showRegister = false" />
+          <div class="dialog-scroll">
+
+            <Register @close="showRegister = false"/>
+          </div>
         </v-dialog>
       </div>
     </v-main>
@@ -41,4 +44,10 @@ const showRegister = ref(false)
   background-size: cover;
   min-height: 100vh;
 }
+
+.dialog-scroll {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
 </style>

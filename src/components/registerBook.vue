@@ -13,12 +13,17 @@
             {{ message }}
           </v-alert>
 
+          <v-overlay :model-value="loading" absolute>
+            <v-progress-circular indeterminate size="64"></v-progress-circular>
+          </v-overlay>
+
           <v-text-field
             v-model="query"
             label="Search Google Books"
             variant="underlined"
             @keyup.enter="handleSearch"
             clearable
+            :disabled="loading"
           ></v-text-field>
 
           <v-list v-if="searchResults.length" class="mb-4">
@@ -40,6 +45,7 @@
                   label="Title*"
                   variant="underlined"
                   required
+                  :disabled="loading"
                 ></v-text-field>
               </v-col>
 
@@ -49,11 +55,12 @@
                   label="Author*"
                   variant="underlined"
                   required
+                  :disabled="loading"
                 ></v-text-field>
               </v-col>
 
               <v-col cols="12" sm="6">
-                <v-text-field v-model="isbn" label="ISBN" variant="underlined"></v-text-field>
+                <v-text-field v-model="isbn" label="ISBN" variant="underlined" :disabled="loading"></v-text-field>
               </v-col>
 
               <v-col cols="12" sm="6">
@@ -62,6 +69,7 @@
                   label="Year"
                   type="number"
                   variant="underlined"
+                  :disabled="loading"
                 ></v-text-field>
               </v-col>
 
@@ -70,6 +78,7 @@
                   v-model="category"
                   label="Category"
                   variant="underlined"
+                  :disabled="loading"
                 ></v-text-field>
               </v-col>
 
@@ -80,6 +89,7 @@
                   variant="underlined"
                   rows="3"
                   auto-grow
+                  :disabled="loading"
                 ></v-textarea>
               </v-col>
             </v-row>
@@ -88,9 +98,9 @@
           <v-divider class="my-4"></v-divider>
 
           <v-card-actions>
-            <v-btn color="error" variant="text" @click="$emit('close')">Fechar</v-btn>
+            <v-btn color="error" variant="text" @click="$emit('close')" :disabled="loading">Fechar</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="success" @click="saveBook" :disabled="!title || !author">
+            <v-btn color="success" @click="saveBook" :disabled="!title || !author || loading" :loading="loading">
               Register Book
             </v-btn>
           </v-card-actions>
@@ -111,6 +121,7 @@ import { getMyBooks } from '@/services/apiBooks.ts'
 const emit = defineEmits(['close'])
 const message = ref('')
 const alertType = ref('success')
+const loading = ref(false)
 
 const query = ref('')
 const searchResults = ref<any[]>([])
@@ -190,7 +201,7 @@ async function saveBook() {
     alertType.value = 'error'
     return
   }
-
+  loading.value = true
   try {
     const imageUrl = await fetchBookImage(title.value)
 
@@ -230,6 +241,8 @@ async function saveBook() {
     console.error(error)
     message.value = 'Error registering book'
     alertType.value = 'error'
+  } finally {
+    loading.value = false
   }
 }
 </script>

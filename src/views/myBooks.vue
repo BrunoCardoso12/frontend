@@ -6,6 +6,9 @@
       <v-dialog v-model="isRegisterBookOpen" persistent>
         <registerBook @close="closeDialog" @book-registered="reloadBooks" />
       </v-dialog>
+      <v-dialog v-model="isProfileOpen" persistent>
+        <profile-component />
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
@@ -16,6 +19,7 @@ import { useDialog } from '@/composable/dialog.ts'
 import navegationProfile from '@/components/navegationProfile.vue'
 import myBooksAdd from '@/components/myBooksAdd.vue'
 import registerBook from '@/components/registerBook.vue'
+import profileComponent from '@/components/profile.vue'
 import { getMyBooks } from '@/services/apiBooks.ts'
 import { getLoggedUser } from '@/composable/auth.ts'
 
@@ -27,6 +31,11 @@ const isRegisterBookOpen = computed({
   set: (val) => {
     if (!val) closeDialog()
   },
+})
+
+const isProfileOpen = computed({
+  get: () => activeDialog.value === 'profile',
+  set: (val) => { if (!val) closeDialog() }
 })
 
 onMounted(async () => {
