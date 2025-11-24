@@ -10,7 +10,7 @@
       <v-btn icon="mdi-theme-light-dark" @click="toggleTheme"></v-btn>
     </template>
 
-    <v-btn icon="mdi-bell" variant="text"></v-btn>
+  <v-btn icon="mdi-bell" variant="text" @click="openDialog('notifications')"></v-btn>
   </v-app-bar>
 
   <v-navigation-drawer

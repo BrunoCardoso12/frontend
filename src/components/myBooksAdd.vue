@@ -1,3 +1,9 @@
+import { ref, onMounted } from 'vue'
+import { getLoggedUser } from '@/composable/auth'
+import { getMyBooks } from '@/services/apiBooks'
+import { ref, onMounted } from 'vue'
+import { getLoggedUser } from '@/composable/auth'
+import { getMyBooks } from '@/services/apiBooks'
 <template>
   <v-container fluid class="mybooks-container">
     <v-row class="d-flex justify-center align-start" dense>
@@ -52,15 +58,29 @@
   </v-container>
 </template>
 
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getMyBooks } from '@/services/apiBooks.ts'
-import { getLoggedUser } from '@/composable/auth.ts'
-import book from '@/components/books.vue'
-import bookTopicsDialog from '@/components/bookTopicsDialog.vue'
+import { getLoggedUser } from '@/composable/auth'
+import { getMyBooks } from '@/services/apiBooks'
+
+interface Book {
+  id: number
+  title: string
+  author: string
+  description?: string
+  coverImageUrl?: string
+  show?: boolean
+}
+
+interface Topic {
+  id: number
+  title: string
+  description: string
+}
 
 const user = getLoggedUser()
-const books = ref([])
+const books = ref<Book[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
@@ -76,10 +96,10 @@ onMounted(async () => {
 })
 
 const showDialog = ref(false)
-const selectedBook = ref(null)
-const topics = ref([])
+const selectedBook = ref<Book | null>(null)
+const topics = ref<Topic[]>([])
 
-function openExplore(book) {
+function openExplore(book: Book) {
   selectedBook.value = book
   showDialog.value = true
 }

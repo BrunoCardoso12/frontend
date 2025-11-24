@@ -28,21 +28,28 @@
 import { ref, watch } from 'vue'
 import { getTopicsByBookId } from '@/services/apiTopics.ts'
 
-const props = defineProps({
-  modelValue: Boolean,
-  selectedBook: Object
-})
 
+interface Topic {
+  id: number
+  title: string
+  description: string
+}
+
+interface Book {
+  id: number
+  title: string
+}
+
+const props = defineProps<{ modelValue: boolean; selectedBook: Book | null; topics?: Topic[] }>()
 const emit = defineEmits(['update:modelValue'])
-
 const model = ref(props.modelValue)
-const topics = ref([])
+const topics = ref<Topic[]>([])
 
 watch(() => props.modelValue, value => (model.value = value))
 watch(model, value => emit('update:modelValue', value))
 
 watch(() => props.selectedBook, async (book) => {
   if (!book) return
-  topics.value = await getTopicsByBookId(book.id).catch(() => [])
+  topics.value = await getTopicsByBookId(book.id) as Topic[] || []
 })
 </script>

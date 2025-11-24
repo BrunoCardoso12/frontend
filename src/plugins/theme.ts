@@ -21,7 +21,7 @@ export const theme = {
         background: '#121212',
         surface: '#1E1E1E',
         primary: '#4242428c',
-        secondary: '#424242',
+        secondary: '#dbd4d4ff',
         accent: '#FF4081',
         error: '#f31818ff',
         info: '#2196F3',

@@ -1,3 +1,4 @@
+import { getMyBooks } from '@/services/apiBooks'
 <template>
   <v-container class="mt-2">
     <v-row justify="center">
@@ -111,20 +112,31 @@
 </template>
 
 <script setup lang="ts">
+
 import { ref } from 'vue'
 import axios from 'axios'
-
 import { getLoggedUser } from '@/composable/auth.ts'
-
 import { getMyBooks } from '@/services/apiBooks.ts'
 
-const emit = defineEmits(['close'])
+interface Book {
+  id?: number
+  title: string
+  author: string
+  isbn?: string
+  year?: string | number | null
+  category?: string
+  description?: string
+  coverImageUrl?: string
+  owner?: { id: number }
+}
+
+const emit = defineEmits(['close', 'book-registered'])
 const message = ref('')
-const alertType = ref('success')
+const alertType = ref<'success' | 'error' | 'info' | 'warning'>('success')
 const loading = ref(false)
 
 const query = ref('')
-const searchResults = ref<any[]>([])
+const searchResults = ref<Book[]>([])
 
 const title = ref('')
 const author = ref('')
@@ -158,15 +170,15 @@ async function handleSearch() {
   }
 }
 
-function selectBook(book: any) {
+function selectBook(book: Book) {
   title.value = book.title
   author.value = book.author
-  year.value = book.year
-  category.value = book.category
-  isbn.value = book.isbn
+  year.value = book.year as number | null
+  category.value = book.category || ''
+  isbn.value = book.isbn || ''
   searchResults.value = []
   query.value = ''
-  description.value = book.description
+  description.value = book.description || ''
 }
 
 async function fetchBookImage(title: string) {
@@ -190,9 +202,7 @@ async function fetchBookImage(title: string) {
   }
 }
 
-function reloadBooks() {
-  getMyBooks().then((data) => (books.value = data))
-}
+// Remover função reloadBooks pois books não está definido aqui
 
 // Salva livro na sua API local
 async function saveBook() {

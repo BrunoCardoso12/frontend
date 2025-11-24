@@ -2,12 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/home.vue'
 import StartPage from '@/views/startPage.vue'
 import MyBooks from '@/views/myBooks.vue'
+import MessageView from '@/views/message.vue'
 
 
 const routes = [
   { path: '/', name: 'home', component: Home },
   { path: '/startPage', name: 'startPage', component: StartPage },
   { path: '/myBooks', name: 'myBooks', component: MyBooks, meta: { requiresAuth: true }},
+  { path: '/message', name: 'message', component: MessageView, meta: { requiresAuth: true }},
 ]
 
 const router = createRouter({

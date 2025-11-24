@@ -38,6 +38,13 @@ const isProfileOpen = computed({
   set: (val) => { if (!val) closeDialog() }
 })
 
+function reloadBooks() {
+  const user = getLoggedUser()
+  if (user && user.id) {
+    getMyBooks(user.id).then((data) => (books.value = data))
+  }
+}
+
 onMounted(async () => {
   const user = getLoggedUser()
   if (user && user.id) {
